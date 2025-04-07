@@ -1,0 +1,6 @@
+cap theorem - to make choices about databases
+Test - Load tests regularly
+SaaC pattern for distributed transactions
+Document my choices better - not just in the presentation
+Add users in the diagrams (not drect feedback to me)
+Login provider - google, bclaude??

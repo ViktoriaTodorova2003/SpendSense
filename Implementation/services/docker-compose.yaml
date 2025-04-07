@@ -1,0 +1,96 @@
+version: '3.8'
+
+networks:
+  spendsense-net:
+    driver: bridge
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-1
+    ports:
+      - "5672:5672"  # RabbitMQ communication
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: adminpassword
+    networks:
+      - spendsense-net
+
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"          # Exposes HTTP
+      - "8080:8080"      # Traefik Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - spendsense-net
+      
+  mysql-budget:
+    image: mysql:latest
+    container_name: mysql-budget-1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: budget_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    networks:
+      - spendsense-net
+
+  mysql-expenses:
+    image: mysql:latest
+    container_name: mysql-expense-1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: expense_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    networks:
+      - spendsense-net
+  
+  budget-service:
+    image: budget-service
+    container_name: budget-service-1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.budget.rule=Host(`budget.localhost`)"
+      - "traefik.http.services.budget.loadbalancer.server.port=8080"
+    networks:
+      - spendsense-net
+    depends_on:
+      - mysql-budget
+
+  expense-service:
+    image: expense-service
+    container_name: expense-service-1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.expense.rule=Host(`expense.localhost`)"
+      - "traefik.http.services.expense.loadbalancer.server.port=8080"
+    networks:
+      - spendsense-net
+    depends_on:
+      - mysql-expenses
+   
+  k6:
+    image: grafana/k6
+    container_name: k6-load-tester
+    networks:
+      - spendsense-net
+    depends_on:
+      - budget-service
+      - expense-service
+    volumes:
+      - ./k6:/scripts:ro  # Mount a folder to store test scripts
+    command: ["run", "/scripts/test.js"]
+
+ 
+
