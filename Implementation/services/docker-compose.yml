@@ -92,7 +92,8 @@ services:
       - expense-service
     volumes:
       - ./k6:/scripts:ro  # Mount a folder to store test scripts
-    command: ["run", "/scripts/test.js"]
+    command: ["k6", "run", "/scripts/test.js"]
+    
 
  
 
