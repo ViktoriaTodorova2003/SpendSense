@@ -1,12 +1,11 @@
-# .github/workflows/build.yml
-name: Build Services
+name: Run Load Tests
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -25,5 +24,10 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Build Docker Services
-        run: docker-compose -f Implementation/services/docker-compose.yml build expense-service budget-service
+      - name: Start k6 container and run tests
+        run: |
+          # Start the k6 container using docker-compose
+          docker-compose -f Implementation/services/docker-compose.yml up -d k6
+          
+          # Run the k6 tests inside the container
+          docker exec k6-load-tester k6 run /scripts/test.js
