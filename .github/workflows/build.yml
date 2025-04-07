@@ -48,5 +48,14 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Run K6 Tests (assuming containers are up)
+      - name: Start K6 Service (if it's not already up)
+        run: |
+          docker-compose -f Implementation/services/docker-compose.yml up -d k6
+          sleep 10  # Wait for k6 to fully start
+
+      - name: Run K6 Tests
         run: docker-compose -f Implementation/services/docker-compose.yml exec k6 run /scripts/test.js
+
+      - name: Shutdown Containers
+        run: docker-compose -f Implementation/services/docker-compose.yml down
+
