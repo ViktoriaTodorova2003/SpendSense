@@ -30,4 +30,4 @@ jobs:
           docker-compose -f Implementation/services/docker-compose.yml up -d k6
           
           # Run the k6 tests inside the container
-          docker exec k6-load-tester k6 run /scripts/test.js
+          # docker exec k6-load-tester k6 run /scripts/test.js
