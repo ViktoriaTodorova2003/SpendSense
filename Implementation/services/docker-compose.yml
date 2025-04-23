@@ -56,6 +56,20 @@ services:
     networks:
       - spendsense-net
   
+  mysql-keycloak:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - spendsense-net
+  
   budget-service:
     #image: budget-service
     build: ./budget-service/openjdk
@@ -94,6 +108,28 @@ services:
       - ./k6:/scripts:ro  # Mount a folder to store test scripts
     command: ["k6", "run", "/scripts/test.js"]
     
+    
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev
+    environment:
+      KC_DB: mysql
+      KC_DB_URL_HOST: mysql-keycloak
+      KC_DB_URL_PORT: 3306
+      #KC_DB_SCHEMA: public
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8090:8080"
+    depends_on:
+      - mysql-keycloak
+    networks:
+      - spendsense-net
+
 
  
-
+volumes:
+  mysql_data:

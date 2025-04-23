@@ -1,0 +1,2 @@
+GRANT ALL PRIVILEGES ON keycloak.* TO 'keycloak'@'%';
+FLUSH PRIVILEGES;
