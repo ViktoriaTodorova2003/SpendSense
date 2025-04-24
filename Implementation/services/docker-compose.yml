@@ -18,6 +18,32 @@ services:
     networks:
       - spendsense-net
 
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    container_name: oauth2-proxy
+    environment:
+      OAUTH2_PROXY_PROVIDER: "keycloak"
+      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"          # The Keycloak client ID you just created
+      OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"     # The Keycloak client secret you copied
+      OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="         # Should be a random string (e.g., base64-encoded)
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"                      # Allow all email domains
+      OAUTH2_PROXY_REDIRECT_URL: "http://localhost/oauth2/callback"  # URL to handle the callback from Keycloak
+      OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"  # Your backend service (e.g., budget-service)
+      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"          # Port for the proxy to listen on
+      OAUTH2_PROXY_COOKIE_SECURE: "false"                  # Disable cookie security in dev (change to true in prod)
+      OAUTH2_PROXY_INSECURE: "true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2-proxy.rule=Host(`localhost`)"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+    ports:
+      - "4180:4180"
+    networks:
+      - spendsense-net
+    depends_on:
+      - keycloak
+
   traefik:
     image: traefik:v2.10
     container_name: traefik
@@ -25,14 +51,24 @@ services:
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
     ports:
-      - "80:80"          # Exposes HTTP
-      - "8080:8080"      # Traefik Dashboard
+      - "80:80"
+      - "8080:8080"  # Traefik Dashboard
+      - "443:443"    # HTTPS (optional)
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - spendsense-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2.rule=Host(`localhost`) && PathPrefix(`/oauth2/`)"
+      - "traefik.http.routers.oauth2.entrypoints=web"
+      - "traefik.http.routers.oauth2.service=oauth2-proxy"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
       
   mysql-budget:
     image: mysql:latest
@@ -133,3 +169,4 @@ services:
  
 volumes:
   mysql_data:
+
