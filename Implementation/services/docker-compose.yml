@@ -5,7 +5,6 @@ networks:
     driver: bridge
 
 services:
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq-1
@@ -18,40 +17,36 @@ services:
     networks:
       - spendsense-net
 
-
   oauth2-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: oauth2-proxy
     environment:
       OAUTH2_PROXY_PROVIDER: "keycloak"
-      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"          # The Keycloak client ID you just created
-      OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"     # The Keycloak client secret you copied
-      OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="         # Should be a random string (e.g., base64-encoded)
-      OAUTH2_PROXY_EMAIL_DOMAINS: "*"                      # Allow all email domains
-      OAUTH2_PROXY_REDIRECT_URL: "http://expense.localhost/oauth2/callback"  # URL to handle the callback from Keycloak
-      OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"  # Your backend service (e.g., budget-service)
-      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"          # Port for the proxy to listen on
-      OAUTH2_PROXY_COOKIE_SECURE: "false"                  # Disable cookie security in dev (change to true in prod)
+      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"
+      OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"
+      OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_REDIRECT_URL: "http://spendsense.localhost/oauth2/callback"
+      OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"
+      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
       OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
-      
       OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/spendsense"
-      OAUTH2_PROXY_LOGIN_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/auth"
-      OAUTH2_PROXY_REDEEM_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/token"
-      OAUTH2_PROXY_PROFILE_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/userinfo"
-      OAUTH2_PROXY_VALIDATE_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/userinfo"
-      OAUTH2_PROXY_ALLOWED_REDIRECT_DOMAINS: "localhost,expense.localhost,budget.localhost"
-      
+      OAUTH2_PROXY_LOGIN_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/auth"
+      OAUTH2_PROXY_REDEEM_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/token"
+      OAUTH2_PROXY_PROFILE_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/userinfo"
+      OAUTH2_PROXY_VALIDATE_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/userinfo"
+      OAUTH2_PROXY_ALLOWED_REDIRECT_DOMAINS: "localhost,spendsense.localhost,budget.localhost"
       OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       OAUTH2_PROXY_SKIP_AUTH_ROUTES: "/oauth2/.*"
     labels:
-       - "traefik.enable=true"
-       - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`) || PathPrefix(`/oauth2/start`))"
-       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
-       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
-       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
-      
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`) || PathPrefix(`/oauth2/start`))"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
     ports:
       - "4180:4180"
     networks:
@@ -78,13 +73,14 @@ services:
       - spendsense-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oauth2.rule=Host(`localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`))"
+      - "traefik.http.routers.oauth2.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`))"
       - "traefik.http.routers.oauth2.entrypoints=web"
       - "traefik.http.routers.oauth2.service=oauth2-proxy"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
-      
+    
   mysql-budget:
     image: mysql:latest
     container_name: mysql-budget-1
@@ -106,7 +102,7 @@ services:
       MYSQL_PASSWORD: password
     networks:
       - spendsense-net
-  
+
   mysql-keycloak:
     image: mysql:8
     environment:
@@ -120,13 +116,11 @@ services:
       - "3306:3306"
     networks:
       - spendsense-net
-  
+
   budget-service:
-    #image: budget-service
     build: ./budget-service/openjdk
     container_name: budget-service-1
     labels:
-    #IF THIS WORKS ALLY THE SAME LABELS ES EXPENSE SERVICE
       - "traefik.enable=true"
       - "traefik.http.routers.budget.rule=Host(`spendsense.localhost`)"
       - "traefik.http.services.budget.loadbalancer.server.port=8080"
@@ -136,7 +130,6 @@ services:
       - mysql-budget
 
   expense-service:
-    #image: expense-service
     build: ./expense-service/openjdk
     container_name: expense-service-1
     labels:
@@ -144,15 +137,11 @@ services:
       - "traefik.http.routers.expense.rule=Host(`spendsense.localhost`) && PathPrefix(`/api/`)"
       - "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
       - "traefik.http.services.expense.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
-
     networks:
       - spendsense-net
     depends_on:
       - mysql-expenses
-   
+
   k6:
     image: grafana/k6
     container_name: k6-load-tester
@@ -164,8 +153,7 @@ services:
     volumes:
       - ./k6:/scripts:ro  # Mount a folder to store test scripts
     command: ["k6", "run", "/scripts/test.js"]
-    
-    
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     command: start-dev
@@ -173,7 +161,6 @@ services:
       KC_DB: mysql
       KC_DB_URL_HOST: mysql-keycloak
       KC_DB_URL_PORT: 3306
-      #KC_DB_SCHEMA: public
       KC_DB_SCHEMA: keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: password
@@ -186,8 +173,5 @@ services:
     networks:
       - spendsense-net
 
-
- 
 volumes:
   mysql_data:
-
