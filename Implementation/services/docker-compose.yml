@@ -42,7 +42,7 @@ services:
       OAUTH2_PROXY_ALLOWED_REDIRECT_DOMAINS: "localhost,expense.localhost,budget.localhost"      
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oauth2-proxy.rule=Host('localhost') && (PathPrefix('/oauth2/') || PathPrefix('/oauth2/callback'))"
+      - "traefik.http.routers.oauth2-proxy.rule=Host(`localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`))"      
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
@@ -136,8 +136,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expense.rule=Host(`expense.localhost`)"
-      - "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
       - "traefik.http.services.expense.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
+      - "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
     networks:
       - spendsense-net
     depends_on:
