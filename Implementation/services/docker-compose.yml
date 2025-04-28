@@ -45,11 +45,12 @@ services:
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       OAUTH2_PROXY_SKIP_AUTH_ROUTES: "/oauth2/.*"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.oauth2-proxy.rule=Host(`expense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`))"
-      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
+       - "traefik.enable=true"
+       - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`) || PathPrefix(`/oauth2/start`))"
+       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
+       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
       
     ports:
       - "4180:4180"
@@ -127,7 +128,7 @@ services:
     labels:
     #IF THIS WORKS ALLY THE SAME LABELS ES EXPENSE SERVICE
       - "traefik.enable=true"
-      - "traefik.http.routers.budget.rule=Host(`budget.localhost`)"
+      - "traefik.http.routers.budget.rule=Host(`spendsense.localhost`)"
       - "traefik.http.services.budget.loadbalancer.server.port=8080"
     networks:
       - spendsense-net
@@ -140,7 +141,7 @@ services:
     container_name: expense-service-1
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.expense.rule=Host(`expense.localhost`) && PathPrefix(`/api/`)"
+      - "traefik.http.routers.expense.rule=Host(`spendsense.localhost`) && PathPrefix(`/api/`)"
       - "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
       - "traefik.http.services.expense.loadbalancer.server.port=8080"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
