@@ -44,9 +44,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`) || PathPrefix(`/oauth2/start`))"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
+      # Middleware definition moved to Traefik service (explained below)
     ports:
       - "4180:4180"
     networks:
@@ -77,10 +75,11 @@ services:
       - "traefik.http.routers.oauth2.entrypoints=web"
       - "traefik.http.routers.oauth2.service=oauth2-proxy"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+      # Middleware definition moved to this section (single definition)
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email"
-    
+
   mysql-budget:
     image: mysql:latest
     container_name: mysql-budget-1
@@ -135,6 +134,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expense.rule=Host(`spendsense.localhost`) && PathPrefix(`/api/`)"
+      # Use the single middleware definition from Traefik service
       - "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
       - "traefik.http.services.expense.loadbalancer.server.port=8080"
     networks:
