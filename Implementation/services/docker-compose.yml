@@ -18,41 +18,41 @@ services:
       - spendsense-net
 
   oauth2-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    container_name: oauth2-proxy
-    environment:
-      OAUTH2_PROXY_PROVIDER: "keycloak"
-      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"
-      OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"
-      OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="
-      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
-      OAUTH2_PROXY_REDIRECT_URL: "http://spendsense.localhost/oauth2/callback"
-      OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"
-      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
-      OAUTH2_PROXY_COOKIE_SECURE: "false"
-      #OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
-      OAUTH2_PROXY_INSECURE: "true"
-      OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/spendsense"
-      OAUTH2_PROXY_LOGIN_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/auth"
-      OAUTH2_PROXY_REDEEM_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/token"
-      OAUTH2_PROXY_PROFILE_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/userinfo"
-      OAUTH2_PROXY_VALIDATE_URL: "http://localhost:8090/realms/spendsense/protocol/openid-connect/userinfo"
-      OAUTH2_PROXY_ALLOWED_REDIRECT_DOMAINS: "localhost,spendsense.localhost,budget.localhost"
-      #OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
-      #OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
-      #OAUTH2_PROXY_SKIP_AUTH_ROUTES: "/oauth2/.*"
-    labels:
+     image: quay.io/oauth2-proxy/oauth2-proxy:latest
+     container_name: oauth2-proxy
+     environment:
+       OAUTH2_PROXY_PROVIDER: "keycloak"
+       OAUTH2_PROXY_CLIENT_ID: "spendsense-client"
+       OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"
+       OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="
+       OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+       OAUTH2_PROXY_COOKIE_DOMAINS: "spendsense.localhost"
+       OAUTH2_PROXY_REDIRECT_URL: "http://spendsense.localhost/oauth2/callback"
+       OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"
+       OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+       OAUTH2_PROXY_COOKIE_SECURE: "false"
+       OAUTH2_PROXY_INSECURE: "true"
+       OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/spendsense"
+       OAUTH2_PROXY_LOGIN_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/auth"
+       OAUTH2_PROXY_REDEEM_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/token"
+       OAUTH2_PROXY_PROFILE_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/userinfo"
+       OAUTH2_PROXY_VALIDATE_URL: "http://keycloak:8080/realms/spendsense/protocol/openid-connect/userinfo"
+       OAUTH2_PROXY_ALLOWED_REDIRECT_DOMAINS: "localhost,spendsense.localhost,budget.localhost"
+       OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
+       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+       # Add the new flag to avoid 401 on /oauth2/auth and allow redirection
+       OAUTH2_PROXY_SKIP_AUTH_PREFLIGHT: "false"
+     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && (PathPrefix(`/oauth2/`) || PathPrefix(`/oauth2/callback`) || PathPrefix(`/oauth2/start`))"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-      # Middleware definition moved to Traefik service (explained below)
-    ports:
+     ports:
       - "4180:4180"
-    networks:
+     networks:
       - spendsense-net
-    depends_on:
+     depends_on:
       - keycloak
-
+      
   traefik:
     image: traefik:v2.10
     container_name: traefik
@@ -62,6 +62,7 @@ services:
       - "--providers.docker=true"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
+      - "--log.level=DEBUG"
     ports:
       - "80:80"
       - "8080:8080"  # Traefik Dashboard
