@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'traefik'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['traefik:8082']
+      
+  - job_name: 'expense-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['expense-service:8080']
