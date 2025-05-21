@@ -5,6 +5,7 @@ networks:
     driver: bridge
 
 services:
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq-1
@@ -14,72 +15,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: adminpassword
-    networks:
-      - spendsense-net
-
-  # oauth2-proxy:
-  #    image: quay.io/oauth2-proxy/oauth2-proxy:latest
-  #    container_name: oauth2-proxy
-  #    environment:
-  #      OAUTH2_PROXY_PROVIDER: "keycloak"
-  #      OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/spendsense"
-  #      OAUTH2_PROXY_COOKIE_SECRET: "P0vDq32mpPl5AVv0YQ4hlmv2EO5ylAMOehDN0I7eF7Q="
-  #      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"
-  #      OAUTH2_PROXY_CLIENT_SECRET: "rHY2zaYVS94C3TFCUEa5VEsryd90J7xQ"       
-  #      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
-  #      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
-  #      OAUTH2_PROXY_COOKIE_SECURE: "false"
-  #      OAUTH2_PROXY_REDIRECT_URL: "http://spendsense.localhost/oauth2/callback"
-  #      OAUTH2_PROXY_UPSTREAMS: "static://202"    
-  #      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "false"       
-  #    labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.oauth2-proxy.rule=Host(`spendsense.localhost`) && PathPrefix(`/`) "
-  #     - traefik.http.routers.oauth2-proxy.entrypoints=web
-  #     - traefik.http.routers.oauth2-proxy.service=oauth2-proxy-service
-  #     - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-  #    ports:
-  #     - "4180:4180"
-  #    networks:
-  #     - spendsense-net
-  #    depends_on:
-  #     - keycloak
-      
-  traefik:
-    image: traefik:v2.10
-    container_name: traefik
-    restart: always
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entryPoints.web.address=:80"
-      - "--entrypoints.metrics.address=:8082"
-      - "--metrics.prometheus=true"
-      - "--metrics.prometheus.entryPoint=metrics"
-      #- "--metrics.prometheus.entryPoint=web"
-      - "--metrics.prometheus.addEntryPointsLabels=true"
-      - "--metrics.prometheus.addRoutersLabels=true"
-     # - "--entryPoints.websecure.address=:443"
-      - "--log.level=DEBUG"
-    ports:
-      - "80:80"
-      - "8080:8080"  # Traefik Dashboard
-      - "8082:8082" 
-     # - "443:443"    # HTTPS (optional)
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - spendsense-net
-    
-
-  mysql-budget:
-    image: mysql:latest
-    container_name: mysql-budget-1
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: budget_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
     networks:
       - spendsense-net
 
@@ -94,65 +29,146 @@ services:
     networks:
       - spendsense-net
 
-  # mysql-keycloak:
-  #   image: mysql:8
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: rootpassword
-  #     MYSQL_DATABASE: keycloak
-  #     MYSQL_USER: keycloak
-  #     MYSQL_PASSWORD: password
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   ports:
-  #     - "3306:3306"
-  #   networks:
-  #     - spendsense-net
+  mysql-keycloak:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - spendsense-net
 
-  budget-service:
-    build: ./budget-service/openjdk
-    container_name: budget-service-1
-    labels:
-       - "traefik.enable=true"
-       - traefik.http.routers.budget.rule=Host(`spendsense.localhost`) && PathPrefix(`/api/budgets`)
-       - "traefik.http.services.budget.loadbalancer.server.port=8080"
-       #- "traefik.http.services.budget.loadbalancer.server.port=7070"
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.metrics.address=:8082"
+      - "--metrics.prometheus=true"
+     # - "--metrics.prometheus.entryPoint=metrics"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addRoutersLabels=true"
+      - "--log.level=DEBUG"
+      - "--entryPoints.websecure.http.tls=true"
+      - "--configFile=/etc/traefik/traefik.yml"
+
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik Dashboard
+      - "443:443"    # HTTPS (optional)
+      - "8082:8082"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "./certs/fullchain.pem:/etc/traefik/fullchain.pem:ro"
+      - "./certs/privkey.pem:/etc/traefik/privkey.pem:ro"
+      - "./dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro"
 
     networks:
       - spendsense-net
+
+  keycloak:
+    image: keycloak/keycloak:latest
+    command: start-dev --log=console,file
+    container_name: keycloak
+    environment:
+      KC_DB: mysql
+      KC_DB_URL_HOST: mysql-keycloak
+      KC_DB_URL_PORT: 3306
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: true
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_PORT: 8888
+
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_COOKIE_SAMESITE: "Lax"  # Или "None" ако е нужно
+      OAUTH2_PROXY_COOKIE_DOMAINS: ".local.spendsense.net"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`auth.local.spendsense.net`)"
+      - "traefik.http.routers.keycloak.entrypoints=websecure"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8888"
+
+    ports:
+      - "8888:8888"
     depends_on:
-      - mysql-budget
+      - mysql-keycloak
+    networks:
+      - spendsense-net
+
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    container_name: oauth2-proxy
+    ports:
+      - "4180:4180"
+    networks:
+      - spendsense-net
+
+    environment:
+      OAUTH2_PROXY_PROVIDER: keycloak-oidc
+      OAUTH2_PROXY_OIDC_ISSUER_URL: "https://auth.local.spendsense.net/realms/master"
+      OAUTH2_PROXY_COOKIE_SECRET: "i6OQu7IbTqFNdNdqQQivBLJO74a5GEXM"
+      OAUTH2_PROXY_CLIENT_ID: "spendsense-client"
+      OAUTH2_PROXY_CLIENT_SECRET: "KVDzjSKFWkERdK9D7AEMdo07aHqlveCi"
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_REDIRECT_URL: "https://exp.local.spendsense.net/oauth2/callback"
+      OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      SSL_CERT_FILE: "/etc/ssl/certs/fullchain.pem"
+      SSL_KEY_FILE: "/etc/ssl/private/privkey.pem"
+
+
+    extra_hosts:
+      "auth.local.spendsense.net": host-gateway
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2-proxy.rule=Host(`exp.local.spendsense.net`) && (PathPrefix(`/api/expenses`) || PathPrefix(`/oauth2`))"
+      - "traefik.http.routers.oauth2-proxy.entrypoints=websecure"
+      - "traefik.http.routers.oauth2-proxy.service=oauth2-proxy-service"
+      - "traefik.http.services.oauth2-proxy-service.loadbalancer.server.port=4180"
+
+    depends_on:
+      - keycloak
+    restart:
+      on-failure
+
+    volumes:
+      - ./certs/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - ./certs/privkey.pem:/etc/ssl/certs/privkey.pem:ro
 
   expense-service:
     build: ./expense-service/openjdk
-    container_name: expense-service-1
+    container_name: expense-service
+
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.expense.entrypoints=web
-      - traefik.http.routers.expense.rule=Host(`spendsense.localhost`) && PathPrefix(`/api/expenses`)
-      - traefik.http.services.expense.loadbalancer.server.port=8080
-      #- "traefik.http.services.expense.loadbalancer.server.port=9090"
+      - "traefik.enable=true"
+      - "traefik.http.routers.expense-service.rule=Host(`exp.local.spendsense.net`)"
+      - "traefik.http.routers.expense-service.entrypoints=websecure"
+      - "traefik.http.services.expense-service.loadbalancer.server.port=8080"
 
-
-
-      #-----------
-      #- "traefik.http.routers.expense.middlewares=oauth2-proxy-forwardauth"
-      #- traefik.http.routers.expense-service.middlewares=oauth2-proxy-forwardauth
-      #- "traefik.http.services.expense.loadbalancer.server.port=8080"
-#----------------------
-
-
-      # - traefik.http.routers.expense-service.middlewares=oauth2-proxy-forwardauth,auth-redirect
-
-      # - traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth
-      # - traefik.http.middlewares.oauth2-proxy-forwardauth.forwardauth.trustForwardHeader=true
-      # - traefik.http.middlewares.auth-redirect.errors.status=401
-      # - traefik.http.middlewares.auth-redirect.errors.service=noop@internal
-      # - traefik.http.middlewares.auth-redirect.errors.query=/oauth2/start
-      
     networks:
       - spendsense-net
-    depends_on:
-      - mysql-expenses
+
 
   k6:
     image: grafana/k6
@@ -188,25 +204,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
-  # keycloak:
-  #   image: quay.io/keycloak/keycloak:24.0
-  #   command: start-dev
-  #   environment:
-  #     KC_DB: mysql
-  #     KC_DB_URL_HOST: mysql-keycloak
-  #     KC_DB_URL_PORT: 3306
-  #     KC_DB_SCHEMA: keycloak
-  #     KC_DB_USERNAME: keycloak
-  #     KC_DB_PASSWORD: password
-  #     KEYCLOAK_ADMIN: admin
-  #     KEYCLOAK_ADMIN_PASSWORD: admin
-  #   ports:
-  #     - "8090:8080"
-  #   depends_on:
-  #     - mysql-keycloak
-  #   networks:
-  #     - spendsense-net
 
 volumes:
   mysql_data:
   grafana_data:
+
