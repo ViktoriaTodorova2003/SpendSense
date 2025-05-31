@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-budget-secret
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: cm9vdHBhc3N3b3Jk # "rootpassword"
+  MYSQL_USER: dXNlcg== # "user"
+  MYSQL_PASSWORD: cGFzc3dvcmQ= # "password"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-budget-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi # Adjust storage size as needed
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-budget
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-budget
+  template:
+    metadata:
+      labels:
+        app: mysql-budget
+    spec:
+      containers:
+      - name: mysql-budget
+        image: mysql:latest
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-budget-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: budget_db
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-budget-secret
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-budget-secret
+              key: MYSQL_PASSWORD
+        volumeMounts:
+        - name: mysql-budget-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-budget-storage
+        persistentVolumeClaim:
+          claimName: mysql-budget-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-budget-service
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql-budget
+  type: ClusterIP # Expose internally 

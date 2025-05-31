@@ -10,6 +10,7 @@ public class Budget {
 
     private String category;
     private Double amount;
+    private String userId;
 
     public Budget() {}
 
@@ -37,4 +38,7 @@ public class Budget {
     public void setAmount(Double amount) {
         this.amount = amount;
     }
+
+    public String getUserId() {return userId; }
+    public void setUserId(String userId) { this.userId = userId;}
 }

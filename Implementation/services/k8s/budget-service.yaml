@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: budget-service
+spec:
+  replicas: 1 # Adjust as needed
+  selector:
+    matchLabels:
+      app: budget-service
+  template:
+    metadata:
+      labels:
+        app: budget-service
+    spec:
+      containers:
+      - name: budget-service
+        image: viktoria2003/services-budget-service:latest # <-- Updated image path
+        imagePullPolicy: IfNotPresent # Or Always, if you want to ensure the latest is pulled
+        ports:
+        - containerPort: 8080 # Assuming your service runs on port 8080
+        env:
+        # Add any environment variables your budget-service needs
+        # Example for database connection:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysql-budget-service:3306/budget_db?useSSL=false&allowPublicKeyRetrieval=true
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysql-budget-secret
+              key: MYSQL_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-budget-secret
+              key: MYSQL_PASSWORD
+        - name: SPRING_RABBITMQ_HOST
+          value: rabbitmq-service
+        # Add other necessary environment variables
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: budget-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: budget-service
+  type: ClusterIP # Will be exposed via Ingress 
