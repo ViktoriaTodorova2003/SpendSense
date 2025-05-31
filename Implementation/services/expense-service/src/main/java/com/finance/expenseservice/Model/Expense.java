@@ -17,6 +17,7 @@ public class Expense {
     private String description;
     private Double amount;
     private String category;
+    private String userId;
 
     // Getters and Setters
     public Long getId() {
@@ -50,4 +51,7 @@ public class Expense {
     public void setCategory(String category) {
         this.category = category;
     }
+    public String getUserId() { return userId;}
+
+    public void setUserId(String userId) { this.userId = userId; }
 }

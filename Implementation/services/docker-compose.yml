@@ -17,6 +17,18 @@ services:
       RABBITMQ_DEFAULT_PASS: adminpassword
     networks:
       - spendsense-net
+      
+      
+  mysql-budget:
+    image: mysql:latest
+    container_name: mysql-budget-1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: budget_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    networks:
+      - spendsense-net
 
   mysql-expenses:
     image: mysql:latest
@@ -131,7 +143,10 @@ services:
       OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
       OAUTH2_PROXY_COOKIE_SECURE: "false"
       OAUTH2_PROXY_REDIRECT_URL: "https://exp.local.spendsense.net/oauth2/callback"
+      #OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080/api/expenses"
       OAUTH2_PROXY_UPSTREAMS: "http://expense-service:8080"
+      OAUTH2_PROXY_UPSTREAMS_1: "http://budget-service:8080/api/budgets"
+      OAUTH2_PROXY_SKIP_CSRF: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       SSL_CERT_FILE: "/etc/ssl/certs/fullchain.pem"
       SSL_KEY_FILE: "/etc/ssl/private/privkey.pem"
@@ -141,11 +156,13 @@ services:
       "auth.local.spendsense.net": host-gateway
 
     labels:
-      - "traefik.enable=true"
+      - "traefik.enable=true"    
       - "traefik.http.routers.oauth2-proxy.rule=Host(`exp.local.spendsense.net`) && (PathPrefix(`/api/expenses`) || PathPrefix(`/oauth2`))"
+      #- "traefik.http.routers.oauth2-proxy.methods=GET,POST,PUT,DELETE"
       - "traefik.http.routers.oauth2-proxy.entrypoints=websecure"
       - "traefik.http.routers.oauth2-proxy.service=oauth2-proxy-service"
       - "traefik.http.services.oauth2-proxy-service.loadbalancer.server.port=4180"
+      # - "traefik.http.routers.oauth2-proxy.rule=Host(`exp.local.spendsense.net`) && (PathPrefix(`/api/expenses`) || PathPrefix(`/api/budgets`) || PathPrefix(`/oauth2`))"
 
     depends_on:
       - keycloak
@@ -156,10 +173,24 @@ services:
       - ./certs/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
       - ./certs/privkey.pem:/etc/ssl/certs/privkey.pem:ro
 
+
+  budget-service:
+    build: ./budget-service/openjdk
+    container_name: budget-service
+    labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.budget-service.rule=Host(`exp.local.spendsense.net`)"
+       - "traefik.http.routers.budget-service.entrypoints=websecure"
+       - "traefik.http.services.budget-service.loadbalancer.server.port=8080"
+       #- "traefik.http.services.budget.loadbalancer.server.port=7070"
+    networks:
+      - spendsense-net
+    depends_on:
+      - mysql-budget
+
   expense-service:
     build: ./expense-service/openjdk
     container_name: expense-service
-
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expense-service.rule=Host(`exp.local.spendsense.net`)"
@@ -187,6 +218,7 @@ services:
     container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml 
     ports:
       - "9090:9090"
     networks:
@@ -203,6 +235,20 @@ services:
       - spendsense-net
     volumes:
       - grafana_data:/var/lib/grafana
+
+  gdpr-orchestrator:
+    build: ./gdpr-orchestrator-service//openjdk
+    container_name: gdpr-orchestrator
+    networks:
+      - spendsense-net
+    depends_on:
+      - budget-service
+      - expense-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gdpr.rule=Host(`app.local.spendsense.net`)"
+      - "traefik.http.routers.gdpr.entrypoints=websecure"
+      - "traefik.http.services.gdpr.loadbalancer.server.port=8080"
 
 
 volumes:
