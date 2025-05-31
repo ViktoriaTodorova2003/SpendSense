@@ -1,0 +1,11 @@
+groups:
+  - name: gdpr-alerts
+    rules:
+      - alert: GdprDeletionFailuresSpike
+        expr: increase(gdpr_deletion_failures_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spike in GDPR deletion failures"
+          description: "More than 5 deletion failures in 5 minutes"
