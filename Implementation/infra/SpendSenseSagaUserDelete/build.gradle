@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'com.microsoft.azure.azurefunctions' version '1.13.0'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'com.azure:azure-messaging-servicebus:7.16.0'
+    implementation 'com.microsoft.azure.functions:azure-functions-java-library:1.4.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+}
+
+test {
+    useJUnitPlatform()
+}

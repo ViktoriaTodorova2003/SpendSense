@@ -1,0 +1,5 @@
+1. minikube start
+2. docker context use default
+2. minikube dashboard
+3. minikube tunnel
+1. kubectl get pods -A	
