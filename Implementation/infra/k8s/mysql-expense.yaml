@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-expense-secret
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: cm9vdHBhc3N3b3Jk # "rootpassword"
+  MYSQL_USER: dXNlcg== # "user"
+  MYSQL_PASSWORD: cGFzc3dvcmQ= # "password"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-expense-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi # Adjust storage size as needed
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-expense
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-expense
+  template:
+    metadata:
+      labels:
+        app: mysql-expense
+    spec:
+      containers:
+      - name: mysql-expense
+        image: mysql:latest
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-expense-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: expense_db
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-expense-secret
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-expense-secret
+              key: MYSQL_PASSWORD
+        volumeMounts:
+        - name: mysql-expense-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-expense-storage
+        persistentVolumeClaim:
+          claimName: mysql-expense-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-expense-service
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql-expense
+  type: ClusterIP # Expose internally 
