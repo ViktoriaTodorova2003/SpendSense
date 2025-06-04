@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: budgets-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /api/budgets$2
+    nginx.ingress.kubernetes.io/rewrite-target: /api/budgets/$2
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
