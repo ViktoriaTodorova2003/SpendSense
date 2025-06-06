@@ -68,3 +68,8 @@ jobs:
           docker-compose -f docker-compose.yml build --no-cache
           docker-compose -f docker-compose.yml up -d k6
 
+      - name: List files in budget-service/openjdk before Docker build
+        working-directory: Implementation/services
+        run: |
+          ls -l budget-service/openjdk
+
