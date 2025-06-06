@@ -71,6 +71,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d k6
 
   sonarqube:
+    if: false  # Disable this job, SonarCloud is now handled by Gradle in build-and-test
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
