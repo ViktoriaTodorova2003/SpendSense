@@ -36,6 +36,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: Remove sonar-project.properties (handled by Gradle plugin now)
+        run: rm -f sonar-project.properties
+        working-directory: Implementation/services/budget-service
+
       - name: Build expense-service JAR
         run: |
           cd Implementation/services/expense-service
