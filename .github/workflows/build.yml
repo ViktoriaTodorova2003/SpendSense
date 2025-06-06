@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -52,6 +54,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -62,14 +66,14 @@ jobs:
           sudo apt-get install -y docker-compose
           docker-compose --version
 
+      - name: List files in budget-service/openjdk before Docker build
+        working-directory: Implementation/services
+        run: |
+          ls -l budget-service/openjdk
+
       - name: Start k6 container and run tests
         working-directory: Implementation/services
         run: |
           docker-compose -f docker-compose.yml build --no-cache
           docker-compose -f docker-compose.yml up -d k6
-
-      - name: List files in budget-service/openjdk before Docker build
-        working-directory: Implementation/services
-        run: |
-          ls -l budget-service/openjdk
 
