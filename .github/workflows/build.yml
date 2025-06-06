@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -39,48 +39,6 @@ jobs:
           cp Implementation/services/budget-service/build/libs/budget-service-0.0.1-SNAPSHOT.jar Implementation/services/budget-service/openjdk/
           cp Implementation/services/expense-service/build/libs/expense-service-0.0.1-SNAPSHOT.jar Implementation/services/expense-service/openjdk/
 
-      - name: Upload budget-service JAR
-        uses: actions/upload-artifact@v3
-        with:
-          name: budget-service-jar
-          path: Implementation/services/budget-service/build/libs/budget-service-0.0.1-SNAPSHOT.jar
-
-      - name: Upload expense-service JAR
-        uses: actions/upload-artifact@v3
-        with:
-          name: expense-service-jar
-          path: Implementation/services/expense-service/build/libs/expense-service-0.0.1-SNAPSHOT.jar
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-          docker-compose --version
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Download budget-service JAR
-        uses: actions/download-artifact@v3
-        with:
-          name: budget-service-jar
-          path: Implementation/services/budget-service/openjdk/
-
-      - name: Download expense-service JAR
-        uses: actions/download-artifact@v3
-        with:
-          name: expense-service-jar
-          path: Implementation/services/expense-service/openjdk/
-
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
@@ -95,7 +53,7 @@ jobs:
         run: |
           ls -l budget-service/openjdk
 
-      - name: Start k6 container and run tests
+      - name: Build and start k6 container and run tests
         working-directory: Implementation/services
         run: |
           docker-compose -f docker-compose.yml build --no-cache
