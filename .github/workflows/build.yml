@@ -65,5 +65,6 @@ jobs:
       - name: Start k6 container and run tests
         working-directory: Implementation/services
         run: |
+          docker-compose -f docker-compose.yml build --no-cache
           docker-compose -f docker-compose.yml up -d k6
 
