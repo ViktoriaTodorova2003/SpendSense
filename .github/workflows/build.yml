@@ -17,6 +17,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Make gradlew executable
+        run: |
+          chmod +x Implementation/services/budget-service/gradlew
+          chmod +x Implementation/services/expense-service/gradlew
+
       - name: Build budget-service JAR
         run: |
           cd Implementation/services/budget-service
