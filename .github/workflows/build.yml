@@ -126,6 +126,11 @@ jobs:
         run: |
           chmod +x Implementation/services/budget-service/gradlew
 
+      - name: Build budget-service JAR (sonarqube)
+        run: |
+          cd Implementation/services/budget-service
+          ./gradlew build -x test
+
       - name: SonarCloud Analysis (budget-service)
         run: |
           ./gradlew sonarqube -Dsonar.projectKey=ViktoriaTodorova2003_SpendSense -Dsonar.organization=viktoriatodorova2003 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
