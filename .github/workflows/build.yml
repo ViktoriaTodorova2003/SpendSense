@@ -56,6 +56,6 @@ jobs:
       - name: Build and start k6 container and run tests
         working-directory: Implementation/services
         run: |
-          docker-compose -f docker-compose.yml build --no-cache
+          docker-compose -f docker-compose.yml build --no-cache --ignore-buildable gdpr-orchestrator
           docker-compose -f docker-compose.yml up -d k6
 
