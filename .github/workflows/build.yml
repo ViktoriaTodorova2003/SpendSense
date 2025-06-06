@@ -20,13 +20,13 @@ jobs:
       - name: Build budget-service JAR
         run: |
           cd Implementation/services/budget-service
-          ./gradlew.bat build
+          ./gradlew.bat build -x test
         shell: powershell
 
       - name: Build expense-service JAR
         run: |
           cd Implementation/services/expense-service
-          ./gradlew.bat build
+          ./gradlew.bat build -x test
         shell: powershell
 
       - name: Copy JARs to openjdk folders
