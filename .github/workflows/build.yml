@@ -63,6 +63,7 @@ jobs:
           docker-compose --version
 
       - name: Start k6 container and run tests
+        working-directory: Implementation/services
         run: |
-          docker-compose -f Implementation/services/docker-compose.yml up -d k6
+          docker-compose -f docker-compose.yml up -d k6
 
