@@ -77,6 +77,15 @@ jobs:
           docker-compose -f docker-compose.yml build --no-cache --ignore-buildable gdpr-orchestrator
           docker-compose -f docker-compose.yml up -d k6
 
+  dockerhub-push:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -92,6 +101,15 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }} Implementation/services/expense-service/openjdk
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }}
+
+  deploy-to-aks:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
