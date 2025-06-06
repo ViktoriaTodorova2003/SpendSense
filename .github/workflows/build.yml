@@ -59,9 +59,40 @@ jobs:
           docker-compose -f docker-compose.yml build --no-cache --ignore-buildable gdpr-orchestrator
           docker-compose -f docker-compose.yml up -d k6
 
-  dockerhub-push:
+  sonarqube:
     runs-on: ubuntu-latest
     needs: build-and-test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Make gradlew executable (sonarqube)
+        run: |
+          chmod +x Implementation/services/budget-service/gradlew
+
+      - name: Build budget-service JAR (sonarqube)
+        run: |
+          cd Implementation/services/budget-service
+          ./gradlew build -x test
+
+      - name: SonarCloud Analysis (budget-service)
+        run: |
+          ./gradlew sonarqube -Dsonar.projectKey=ViktoriaTodorova2003_SpendSense -Dsonar.organization=viktoriatodorova2003 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        working-directory: Implementation/services/budget-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dockerhub-push:
+    runs-on: ubuntu-latest
+    needs: sonarqube
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -107,37 +138,6 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }} Implementation/services/expense-service/openjdk
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }}
 
-  sonarqube:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Make gradlew executable (sonarqube)
-        run: |
-          chmod +x Implementation/services/budget-service/gradlew
-
-      - name: Build budget-service JAR (sonarqube)
-        run: |
-          cd Implementation/services/budget-service
-          ./gradlew build -x test
-
-      - name: SonarCloud Analysis (budget-service)
-        run: |
-          ./gradlew sonarqube -Dsonar.projectKey=ViktoriaTodorova2003_SpendSense -Dsonar.organization=viktoriatodorova2003 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-        working-directory: Implementation/services/budget-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   deploy-to-aks:
     runs-on: ubuntu-latest
     needs: dockerhub-push
@@ -171,5 +171,5 @@ jobs:
       - name: Deploy to AKS
         run: |
           kubectl apply -f Implementation/infra/k8s/
-        #dfjdo
+
 
