@@ -86,6 +86,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Build budget-service JAR
+        run: |
+          cd Implementation/services/budget-service
+          ./gradlew build -x test
+
+      - name: Copy budget-service JAR to Docker context
+        run: |
+          cp Implementation/services/budget-service/build/libs/budget-service-0.0.1-SNAPSHOT.jar Implementation/services/budget-service/openjdk/
+
+      - name: Build expense-service JAR
+        run: |
+          cd Implementation/services/expense-service
+          ./gradlew build -x test
+
+      - name: Copy expense-service JAR to Docker context
+        run: |
+          cp Implementation/services/expense-service/build/libs/expense-service-0.0.1-SNAPSHOT.jar Implementation/services/expense-service/openjdk/
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
