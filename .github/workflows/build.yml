@@ -102,40 +102,6 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }} Implementation/services/expense-service/openjdk
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }}
 
-  deploy-to-aks:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Set AKS context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-      - name: Update image tags in k8s manifests
-        run: |
-          sed -i "s|image: .*/budget-service:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/budget-service:${{ github.sha }}|g" Implementation/infra/k8s/budget-service.yaml
-          sed -i "s|image: .*/expense-service:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }}|g" Implementation/infra/k8s/expense-service.yaml
-
-      - name: Deploy to AKS
-        run: |
-          kubectl apply -f Implementation/infra/k8s/
-
   sonarqube:
     if: false  # Disable this job, SonarCloud is now handled by Gradle in build-and-test
     runs-on: ubuntu-latest
