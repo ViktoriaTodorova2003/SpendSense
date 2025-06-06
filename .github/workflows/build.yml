@@ -86,6 +86,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Make gradlew executable (dockerhub-push)
+        run: |
+          chmod +x Implementation/services/budget-service/gradlew
+          chmod +x Implementation/services/expense-service/gradlew
+
       - name: Build budget-service JAR
         run: |
           cd Implementation/services/budget-service
