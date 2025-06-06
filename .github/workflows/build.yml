@@ -45,6 +45,13 @@ jobs:
           cd Implementation/services/expense-service
           ./gradlew build -x test
 
+      # - name: SonarCloud Analysis (expense-service)
+      #   run: |
+      #     ./gradlew sonarqube -Dsonar.projectKey=ViktoriaTodorova2003_SpendSense_expense -Dsonar.organization=viktoriatodorova2003 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      #   working-directory: Implementation/services/expense-service
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Copy JARs to openjdk folders
         run: |
           cp Implementation/services/budget-service/build/libs/budget-service-0.0.1-SNAPSHOT.jar Implementation/services/budget-service/openjdk/
@@ -69,6 +76,22 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml build --no-cache --ignore-buildable gdpr-orchestrator
           docker-compose -f docker-compose.yml up -d k6
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push budget-service image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/budget-service:${{ github.sha }} Implementation/services/budget-service/openjdk
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/budget-service:${{ github.sha }}
+
+      - name: Build and push expense-service image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }} Implementation/services/expense-service/openjdk
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/expense-service:${{ github.sha }}
 
   sonarqube:
     if: false  # Disable this job, SonarCloud is now handled by Gradle in build-and-test
