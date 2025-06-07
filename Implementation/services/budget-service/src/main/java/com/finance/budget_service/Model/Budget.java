@@ -3,7 +3,9 @@ import jakarta.persistence.*;
 
 
 @Entity
-public class Budget {
+public class Budget implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

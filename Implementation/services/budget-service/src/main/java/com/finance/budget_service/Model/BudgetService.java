@@ -20,6 +20,7 @@ public class BudgetService {
     @Transactional
     public void deleteBudgetsByUserId(String userId) {
         budgetRepository.deleteByUserId(userId);
+        logger.info("Deleted budgets for userId: {}", userId);
     }
 
     @Cacheable(value = "budgets", key = "#userId != null ? #userId : 'all'")

@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: budget-service
-        image: viktoria2003/services-budget-service:latest # <-- Updated image path
-        imagePullPolicy: IfNotPresent # Or Always, if you want to ensure the latest is pulled
+        image: viktoria2003/services-budget-service:20250607c # <-- Updated image tag for cache busting
+        imagePullPolicy: Always # Ensure the latest image is always pulled
         ports:
         - containerPort: 8080 # Assuming your service runs on port 8080
         env:
@@ -47,4 +47,4 @@ spec:
     targetPort: 8080
   selector:
     app: budget-service
-  type: ClusterIP # Will be exposed via Ingress 
+  type: ClusterIP # Will be exposed via Ingress
