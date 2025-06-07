@@ -4,7 +4,6 @@ import com.finance.budget_service.Model.Budget;
 import com.finance.budget_service.Model.BudgetService;
 import com.finance.budget_service.Repository.BudgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,22 +19,9 @@ public class BudgetController {
     private BudgetService budgetService;
 
     @GetMapping
-    @Cacheable(value = "budgets", key = "#userId != null ? #userId : 'all'")
     public List<Budget> getBudgets(@RequestParam(required = false) String userId) {
-        System.out.println("Fetching budgets from DB for userId: " + userId);
-        if (userId != null) {
-            return budgetRepository.findByUserId(userId); // ✅ Filter budgets by userId
-        }
-        return budgetRepository.findAll();
+        return budgetService.getBudgets(userId);
     }
-
-    /*@GetMapping
-    public List<Budget> getBudgets(@RequestParam(required = false) String userId) {
-        if (userId != null) {
-            return budgetRepository.findByUserId(userId); // ✅ Filter budgets by userId
-        }
-        return budgetRepository.findAll();
-    }*/
 
     @PostMapping
     public Budget addBudget(@RequestBody Budget budget) {
@@ -47,8 +33,4 @@ public class BudgetController {
         budgetService.deleteBudgetsByUserId(userId);
         return ResponseEntity.noContent().build();
     }
-//    @DeleteMapping("/user/{userId}")
-//    public void deleteBudgetsByUserId(@PathVariable String userId) {
-//        budgetRepository.deleteByUserId(userId);  // ✅ Delete budgets by userId for Saga
-//    }
 }
