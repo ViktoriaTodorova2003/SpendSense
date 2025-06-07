@@ -4,6 +4,7 @@ import com.finance.budget_service.Model.Budget;
 import com.finance.budget_service.Model.BudgetService;
 import com.finance.budget_service.Repository.BudgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +25,13 @@ public class BudgetController {
     }
 
     @PostMapping
+    @CacheEvict(value = "budgets", allEntries = true)
     public Budget addBudget(@RequestBody Budget budget) {
         return budgetRepository.save(budget);
     }
 
     @DeleteMapping("/user/{userId}")
+    @CacheEvict(value = "budgets", allEntries = true)
     public ResponseEntity<Void> deleteBudgetsByUserId(@PathVariable String userId) {
         budgetService.deleteBudgetsByUserId(userId);
         return ResponseEntity.noContent().build();
