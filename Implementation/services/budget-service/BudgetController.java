@@ -17,6 +17,7 @@ public class BudgetController {
     @GetMapping
     @Cacheable(value = "budgets", key = "#userId != null ? #userId : 'all'")
     public List<Budget> getBudgets(@RequestParam(required = false) String userId) {
+        System.out.println("Fetching budgets from DB for userId: " + userId);
         if (userId != null) {
             return budgetRepository.findByUserId(userId); // ✅ Filter budgets by userId
         }
