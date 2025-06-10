@@ -59,6 +59,13 @@ spec:
         volumeMounts:
         - name: mysql-budget-storage
           mountPath: /var/lib/mysql
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
       volumes:
       - name: mysql-budget-storage
         persistentVolumeClaim:
@@ -73,4 +80,4 @@ spec:
   - port: 3306
   selector:
     app: mysql-budget
-  type: ClusterIP # Expose internally 
+  type: ClusterIP # Expose internally

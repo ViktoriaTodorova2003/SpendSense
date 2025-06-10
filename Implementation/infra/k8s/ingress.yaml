@@ -29,13 +29,13 @@ kind: Ingress
 metadata:
   name: expenses-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /api/expenses/$2
+    nginx.ingress.kubernetes.io/rewrite-target: /api/expenses$1
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
   - http:
       paths:
-      - path: /expenses(/|$)(.*)
+      - path: /expenses(/.*)?
         pathType: ImplementationSpecific
         backend:
           service:

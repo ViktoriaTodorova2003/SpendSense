@@ -17,8 +17,22 @@ dependencies {
     implementation 'com.microsoft.azure.functions:azure-functions-java-library:1.4.2'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
     implementation 'com.google.code.gson:gson:2.10.1'
-
 }
+
+//fsdfsdf
+
+/*azurefunctions {
+    appName = "SpendSenseSagaFunctions"
+    resourceGroup = "SpendSenseGroup"
+    runtime {
+        os = 'linux'
+        javaVersion = '17'
+    }
+    appSettings = [
+            "FUNCTIONS_WORKER_RUNTIME"     : "java",
+            "AzureServiceBusConnection"    : "Endpoint=sb://spendsense-service-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=LzYR9PAa13NXl3F7EPq97P5HUHzRO9LlM+ASbDSbm0k=;",
+    ]
+}*/
 
 test {
     useJUnitPlatform()

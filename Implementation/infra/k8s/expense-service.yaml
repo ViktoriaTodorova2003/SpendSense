@@ -16,6 +16,13 @@ spec:
       - name: expense-service
         image: viktoria2003/services-expense-service:latest # <-- Updated image path
         imagePullPolicy: IfNotPresent # Or Always, if you want to ensure the latest is pulled
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         ports:
         - containerPort: 8080 # Assuming your service runs on port 8080
         env:
@@ -47,4 +54,4 @@ spec:
     targetPort: 8080
   selector:
     app: expense-service
-  type: ClusterIP # Will be exposed via Ingress 
+  type: ClusterIP # Will be exposed via Ingress
