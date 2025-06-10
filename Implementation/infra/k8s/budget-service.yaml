@@ -35,6 +35,16 @@ spec:
               key: MYSQL_PASSWORD
         - name: SPRING_RABBITMQ_HOST
           value: rabbitmq-service
+        - name: AZURE_SERVICEBUS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-servicebus-secret
+              key: SERVICEBUS_CONNECTION_STRING
+        - name: AZURE_SERVICEBUS_TOPIC_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-servicebus-secret
+              key: TOPIC_CONNECTION_STRING
         # Add other necessary environment variables
 ---
 apiVersion: v1
