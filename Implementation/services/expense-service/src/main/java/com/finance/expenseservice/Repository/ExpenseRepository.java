@@ -8,4 +8,15 @@ import java.util.List;
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUserId(String userId); // ✅
     void deleteByUserId(String userId); // ✅ For Saga step
+
+    List<Expense> findByUserIdAndDeletedFalse(String userId);
+    List<Expense> findByDeletedFalse();
+    // Soft delete by userId
+    default void softDeleteByUserId(String userId) {
+        List<Expense> expenses = findByUserIdAndDeletedFalse(userId);
+        for (Expense expense : expenses) {
+            expense.setDeleted(true);
+        }
+        saveAll(expenses);
+    }
 }

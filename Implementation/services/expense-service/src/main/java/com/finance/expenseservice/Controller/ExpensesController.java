@@ -26,9 +26,9 @@ public class ExpensesController {
     @GetMapping
     public List<Expense> getExpenses(@RequestParam(required = false) String userId) {
         if (userId != null) {
-            return expenseRepository.findByUserId(userId); // ✅ Filter by user
+            return expenseRepository.findByUserIdAndDeletedFalse(userId); // Only non-deleted
         }
-        return expenseRepository.findAll();
+        return expenseRepository.findByDeletedFalse(); // Only non-deleted
     }
 
     @PostMapping
@@ -41,6 +41,12 @@ public class ExpensesController {
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> deleteExpensesByUserId(@PathVariable String userId) {
         expenseService.deleteExpensesByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/user/{userId}/hard")
+    public ResponseEntity<Void> hardDeleteExpensesByUserId(@PathVariable String userId) {
+        expenseService.hardDeleteExpensesByUserId(userId);
         return ResponseEntity.noContent().build();
     }
 

@@ -30,10 +30,19 @@ public class BudgetController {
         return budgetRepository.save(budget);
     }
 
+    // SOFT DELETE: default endpoint
     @DeleteMapping("/user/{userId}")
     @CacheEvict(value = "budgets", allEntries = true)
-    public ResponseEntity<Void> deleteBudgetsByUserId(@PathVariable String userId) {
-        budgetService.deleteBudgetsByUserId(userId);
+    public ResponseEntity<Void> softDeleteBudgetsByUserId(@PathVariable String userId) {
+        budgetService.softDeleteBudgetsByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // HARD DELETE: explicit endpoint
+    @DeleteMapping("/user/{userId}/hard")
+    @CacheEvict(value = "budgets", allEntries = true)
+    public ResponseEntity<Void> hardDeleteBudgetsByUserId(@PathVariable String userId) {
+        budgetService.hardDeleteBudgetsByUserId(userId);
         return ResponseEntity.noContent().build();
     }
 }

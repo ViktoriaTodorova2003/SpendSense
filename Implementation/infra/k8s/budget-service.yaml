@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: budget-service
-        image: viktoria2003/services-budget-service:20250607e # <-- Updated image tag for cache busting
+        image: viktoria2003/services-budget-service:20250611143002 # <-- Updated image tag for cache busting
         imagePullPolicy: Always # Ensure the latest image is always pulled
         ports:
         - containerPort: 8080 # Assuming your service runs on port 8080

@@ -18,6 +18,7 @@ public class Expense {
     private Double amount;
     private String category;
     private String userId;
+    private boolean deleted = false;
 
     // Getters and Setters
     public Long getId() {
@@ -54,4 +55,7 @@ public class Expense {
     public String getUserId() { return userId;}
 
     public void setUserId(String userId) { this.userId = userId; }
+
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

@@ -23,12 +23,24 @@ public class BudgetService {
         logger.info("Deleted budgets for userId: {}", userId);
     }
 
+    @Transactional
+    public void softDeleteBudgetsByUserId(String userId) {
+        budgetRepository.softDeleteByUserId(userId);
+        logger.info("Soft deleted budgets for userId: {}", userId);
+    }
+
+    @Transactional
+    public void hardDeleteBudgetsByUserId(String userId) {
+        budgetRepository.deleteByUserId(userId);
+        logger.info("Hard deleted budgets for userId: {}", userId);
+    }
+
     @Cacheable(value = "budgets", key = "#userId != null ? #userId : 'all'")
     public List<Budget> getBudgets(String userId) {
         logger.info("Fetching budgets from DB for userId: {}", userId);
         if (userId != null) {
-            return budgetRepository.findByUserId(userId);
+            return budgetRepository.findByUserIdAndDeletedFalse(userId);
         }
-        return budgetRepository.findAll();
+        return budgetRepository.findByDeletedFalse();
     }
 }

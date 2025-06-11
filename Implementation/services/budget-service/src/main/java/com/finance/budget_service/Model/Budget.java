@@ -14,6 +14,8 @@ public class Budget implements java.io.Serializable {
     private Double amount;
     private String userId;
 
+    private boolean deleted = false;
+
     public Budget() {}
 
     public Budget(String category, Double amount) {
@@ -43,4 +45,7 @@ public class Budget implements java.io.Serializable {
 
     public String getUserId() {return userId; }
     public void setUserId(String userId) { this.userId = userId;}
+
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

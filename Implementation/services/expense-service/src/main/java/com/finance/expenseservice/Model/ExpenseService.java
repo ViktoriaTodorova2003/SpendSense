@@ -12,6 +12,11 @@ public class ExpenseService {
 
     @Transactional
     public void deleteExpensesByUserId(String userId) {
+        expenseRepository.softDeleteByUserId(userId);
+    }
+
+    @Transactional
+    public void hardDeleteExpensesByUserId(String userId) {
         expenseRepository.deleteByUserId(userId);
     }
 }
