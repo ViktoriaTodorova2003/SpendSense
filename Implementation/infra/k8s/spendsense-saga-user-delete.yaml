@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spendsense-saga-user-delete
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spendsense-saga-user-delete
+  template:
+    metadata:
+      labels:
+        app: spendsense-saga-user-delete
+    spec:
+      containers:
+      - name: spendsense-saga-user-delete
+        image: viktoria2003/spendsense-saga-user-delete:latest # Update with your image path
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        # Add environment variables if needed
