@@ -15,7 +15,7 @@ spec:
       containers:
       - name: expense-service
         #image: viktoria2003/services-expense-service:latest # <-- Updated image path
-        image: viktoria2003/services-expense-service:20250611143000
+        image: viktoria2003/services-expense-service:2025061243000 
         imagePullPolicy: Always # Or Always, if you want to ensure the latest is pulled
         resources:
           requests:

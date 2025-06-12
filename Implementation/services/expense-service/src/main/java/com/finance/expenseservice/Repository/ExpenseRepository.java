@@ -19,4 +19,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         }
         saveAll(expenses);
     }
+    // Restore (undo soft delete) all expenses for a user
+    default void restoreByUserId(String userId) {
+        List<Expense> expenses = findByUserId(userId);
+        for (Expense expense : expenses) {
+            if (expense.isDeleted()) {
+                expense.setDeleted(false);
+            }
+        }
+        saveAll(expenses);
+    }
 }

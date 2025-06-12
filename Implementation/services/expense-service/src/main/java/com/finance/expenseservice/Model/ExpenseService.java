@@ -19,4 +19,9 @@ public class ExpenseService {
     public void hardDeleteExpensesByUserId(String userId) {
         expenseRepository.deleteByUserId(userId);
     }
+
+    @Transactional
+    public void restoreExpensesByUserId(String userId) {
+        expenseRepository.restoreByUserId(userId);
+    }
 }

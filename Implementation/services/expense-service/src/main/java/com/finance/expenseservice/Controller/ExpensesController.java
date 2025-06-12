@@ -50,6 +50,12 @@ public class ExpensesController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/user/{userId}/restore")
+    public ResponseEntity<Void> restoreExpensesByUserId(@PathVariable String userId) {
+        expenseService.restoreExpensesByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
 //    @DeleteMapping("/user/{userId}")
 //    public void deleteExpensesByUserId(@PathVariable String userId) {
 //        expenseRepository.deleteByUserId(userId); // ✅ Saga-compatible
