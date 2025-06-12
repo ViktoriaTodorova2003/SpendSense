@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = extensions
-build_property.ProjectDir = D:\Vicky\SpendSenseSaga\
+build_property.ProjectDir = D:\Fontys\s6\IndividualPrj\transfer\spendsense-group\Implementation\infra\SpendSenseSagaUserDelete\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

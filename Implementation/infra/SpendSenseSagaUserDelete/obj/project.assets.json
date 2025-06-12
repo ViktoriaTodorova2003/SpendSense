@@ -5905,19 +5905,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\bisser\\.nuget\\packages\\": {}
+    "C:\\Users\\bisse\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Vicky\\SpendSenseSaga\\extensions.csproj",
+      "projectUniqueName": "D:\\Fontys\\s6\\IndividualPrj\\transfer\\spendsense-group\\Implementation\\infra\\SpendSenseSagaUserDelete\\extensions.csproj",
       "projectName": "extensions",
-      "projectPath": "D:\\Vicky\\SpendSenseSaga\\extensions.csproj",
-      "packagesPath": "C:\\Users\\bisser\\.nuget\\packages\\",
-      "outputPath": "D:\\Vicky\\SpendSenseSaga\\obj\\",
+      "projectPath": "D:\\Fontys\\s6\\IndividualPrj\\transfer\\spendsense-group\\Implementation\\infra\\SpendSenseSagaUserDelete\\extensions.csproj",
+      "packagesPath": "C:\\Users\\bisse\\.nuget\\packages\\",
+      "outputPath": "D:\\Fontys\\s6\\IndividualPrj\\transfer\\spendsense-group\\Implementation\\infra\\SpendSenseSagaUserDelete\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\bisser\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\bisse\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -5925,6 +5925,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5968,7 +5969,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
       }
     }
   }
