@@ -4,11 +4,11 @@
   --sidebar-bg: #18122b; /* Rich dark purple/navy */
   --sidebar-text: #f5e9d6; /* Champagne gold */
   --sidebar-active: #f7f3e9; /* Light gold background */
-  --expense-card-bg: #f8f1e3; /* Beige/golden for small cards */
+  --expense-card-bg: #f6ecd9; /* Softer beige/golden for small cards */
   --expense-card-border: #e0cba8; /* Soft gold border */
   --expense-list-bg: #fff; /* White for list wrapper */
   --expense-form-bg: #fff; /* White for form wrapper */
-  --input-bg: #f8f1e3; /* Beige/golden for input fields */
+  --input-bg: #f6ecd9; /* Softer beige/golden for input fields */
   --accent: #bfa76f; /* Gold accent */
   --danger: #b85c38; /* Elegant muted red */
   --success: #3eaf7c; /* Emerald green */
@@ -151,30 +151,42 @@ body {
 }
 
 .expense-form-horizontal h3 {
-  margin-bottom: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
+  margin-bottom: 18px;
+  margin-top: 0;
+  padding: 0;
 }
 
 .expense-form-wrapper {
   background: var(--expense-form-bg);
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(186, 163, 111, 0.08);
-  padding: 40px 48px;
+  padding: 24px 40px 40px 40px;
   width: 100%;
   margin-bottom: 0;
   box-sizing: border-box;
-  border: 1.5px solid var(--expense-card-border);
+  border: none;
 }
 
 .expense-list-wrapper {
   background: var(--expense-list-bg);
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(186, 163, 111, 0.08);
-  padding: 40px 48px;
+  padding: 12px 40px 40px 40px;
   width: 100%;
   box-sizing: border-box;
-  border: 1.5px solid var(--expense-card-border);
+  border: none;
+  padding-top: 32px;
+}
+
+.expense-list-wrapper h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--primary);
+  padding: 0 0 0 2px;
+  line-height: 1.1;
+  text-align: left;
 }
 
 .expense-input-row {
@@ -216,7 +228,9 @@ body {
 .expense-input-group select {
   background: var(--input-bg);
   padding: 8px 10px;
-  border: 1px solid #cfd8dc;
+  border: none;
+  outline: none;
+  box-shadow: none;
   border-radius: 4px;
   font-size: 1rem;
 }
@@ -280,7 +294,7 @@ body {
 
 .expense-card-grid {
   background: var(--expense-card-bg);
-  border: 1.5px solid var(--expense-card-border);
+  border: none;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(186, 163, 111, 0.06);
   padding: 18px 14px;
