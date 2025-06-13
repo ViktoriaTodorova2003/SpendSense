@@ -45,7 +45,7 @@ function ExpenseForm({ onAdd }) {
 
   return (
     <form className="expense-form-horizontal" onSubmit={handleSubmit}>
-      <h3>Expense</h3>
+      <h3 className="expense-form-title">New Expense</h3>
       <div className="expense-input-row">
         <div className="expense-input-group">
           <label>Category</label>
@@ -103,7 +103,7 @@ function ExpensesSection({ expenses, onAdd }) {
         <ExpenseForm onAdd={onAdd} />
       </div>
       <div className="expense-list-wrapper">
-        <h3>My Expenses</h3>
+        <h3 className="expense-form-title">My Expenses</h3>
         <div className="expense-list-grid">
           {expenses.length === 0 && [1,2,3].map(i => (
             <div className="expense-card-grid" key={i}>
@@ -133,11 +133,86 @@ function HomeSection() {
   );
 }
 
-function BudgetsSection() {
+function BudgetForm({ onAdd }) {
+  const [category, setCategory] = useState('General');
+  const [description, setDescription] = useState('');
+  const [limit, setLimit] = useState('');
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!description || !limit) return;
+    onAdd({ category, description, limit: parseFloat(limit) });
+    setDescription('');
+    setLimit('');
+  }
+
   return (
-    <section className="budgets-section">
-      <h2>Budgets</h2>
-      <p>Budget management coming soon!</p>
+    <form className="budget-form-horizontal" onSubmit={handleSubmit}>
+      <h3 className="expense-form-title">New Budget</h3>
+      <div className="expense-input-row">
+        <div className="expense-input-group">
+          <label>Category</label>
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option>General</option>
+            <option>Food</option>
+            <option>Transport</option>
+            <option>Shopping</option>
+            <option>Utilities</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div className="expense-input-group">
+          <label>Description</label>
+          <input
+            type="text"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder="e.g. Groceries for June"
+            required
+          />
+        </div>
+        <div className="expense-input-group">
+          <label>Limit</label>
+          <input
+            type="number"
+            value={limit}
+            onChange={e => setLimit(e.target.value)}
+            placeholder="$0.00"
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
+      </div>
+      <button className="expense-form-btn" type="submit">Add New Budget</button>
+    </form>
+  );
+}
+
+function BudgetsSection({ budgets, onAdd }) {
+  return (
+    <section className="expenses-section expenses-section-grid">
+      <div className="expense-form-wrapper">
+        <BudgetForm onAdd={onAdd} />
+      </div>
+      <div className="expense-list-wrapper">
+        <h3 className="expense-form-title">My Budgets</h3>
+        <div className="expense-list-grid">
+          {budgets.length === 0 && [1,2,3].map(i => (
+            <div className="expense-card-grid" key={i}>
+              <div className="expense-card-title">Budget {i}</div>
+              <div className="expense-card-placeholder">...</div>
+            </div>
+          ))}
+          {budgets.map((b, i) => (
+            <div className="expense-card-grid" key={i}>
+              <div className="expense-card-title">{b.category}</div>
+              <div className="expense-card-desc">{b.description}</div>
+              <div className="expense-card-amount">${b.limit.toFixed(2)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -145,6 +220,7 @@ function BudgetsSection() {
 function App() {
   const [current, setCurrent] = useState('Home');
   const [expenses, setExpenses] = useState([]);
+  const [budgets, setBudgets] = useState([]);
 
   return (
     <div className="app-layout">
@@ -152,7 +228,7 @@ function App() {
       <main className="main-content">
         {current === 'Home' && <HomeSection />}
         {current === 'Expenses' && <ExpensesSection expenses={expenses} onAdd={e => setExpenses(prev => [...prev, e])} />}
-        {current === 'Budgets' && <BudgetsSection />}
+        {current === 'Budgets' && <BudgetsSection budgets={budgets} onAdd={b => setBudgets(prev => [...prev, b])} />}
       </main>
     </div>
   );

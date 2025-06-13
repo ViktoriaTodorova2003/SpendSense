@@ -156,6 +156,17 @@ body {
   padding: 0;
 }
 
+.expense-form-title {
+  margin: 0 0 28px 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--primary);
+  padding: 0 0 0 2px;
+  line-height: 1.22;
+  text-align: left;
+}
+
 .expense-form-wrapper {
   background: var(--expense-form-bg);
   border-radius: 16px;
@@ -178,21 +189,11 @@ body {
   padding-top: 32px;
 }
 
-.expense-list-wrapper h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  color: var(--primary);
-  padding: 0 0 0 2px;
-  line-height: 1.1;
-  text-align: left;
-}
-
 .expense-input-row {
   display: flex;
   gap: 18px;
   width: 100%;
+  margin-bottom: 10px;
 }
 
 .expense-input-group {
@@ -207,6 +208,8 @@ body {
   font-weight: 500;
   margin-bottom: 4px;
   color: #333;
+  text-align: left;
+  padding-left: 2px;
 }
 
 .expense-form label {
@@ -258,7 +261,7 @@ body {
   font-size: 1.08rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 12px;
   letter-spacing: 1px;
   transition: background 0.2s;
 }
@@ -310,6 +313,8 @@ body {
   font-weight: 600;
   color: var(--primary);
   font-size: 1.05rem;
+  text-align: left;
+  width: 100%;
 }
 
 .expense-card-placeholder {
@@ -321,12 +326,16 @@ body {
 .expense-card-desc {
   color: #444;
   font-size: 0.98rem;
+  text-align: left;
+  width: 100%;
 }
 
 .expense-amount {
   font-weight: bold;
   color: var(--danger);
   font-size: 1.05rem;
+  text-align: left;
+  width: 100%;
 }
 
 .empty {
@@ -512,4 +521,70 @@ ul {
     grid-template-columns: 1fr;
     gap: 24px;
   }
+}
+
+.budget-form-horizontal .expense-input-row {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.budget-form-horizontal .expense-input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.budget-form-horizontal .expense-input-group label {
+  font-size: 0.98rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+  text-align: left;
+  padding-left: 2px;
+}
+
+.budget-form-horizontal .expense-input-group input,
+.budget-form-horizontal .expense-input-group select {
+  background: var(--input-bg);
+  border: none;
+  outline: none;
+  box-shadow: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.budget-form-horizontal .expense-form-title {
+  margin: 0 0 28px 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--primary);
+  padding: 0 0 0 2px;
+  line-height: 1.22;
+  text-align: left;
+}
+
+.budget-form-horizontal .expense-form-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px 0;
+  border-radius: 4px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+
+.budget-form-horizontal .expense-form-btn:hover {
+  background: #a68a4d;
 }
