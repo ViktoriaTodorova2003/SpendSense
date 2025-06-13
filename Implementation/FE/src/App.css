@@ -179,14 +179,36 @@ body {
 }
 
 .expense-list-wrapper {
-  background: var(--expense-list-bg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(186, 163, 111, 0.08);
-  padding: 12px 40px 40px 40px;
-  width: 100%;
-  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(186, 163, 111, 0.06);
+  padding: 32px 24px;
+}
+
+.expense-list-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.expense-list-empty {
+  background: none;
   border: none;
-  padding-top: 32px;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: 90px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: 1.1rem;
+  font-weight: 500;
+  grid-column: 1 / -1;
 }
 
 .expense-input-row {
@@ -279,7 +301,7 @@ body {
 
 .expense-list-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 18px;
   margin-top: 18px;
 }
@@ -587,4 +609,19 @@ ul {
 
 .budget-form-horizontal .expense-form-btn:hover {
   background: #a68a4d;
+}
+
+.expense-list-empty {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: 90px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: 1.1rem;
+  font-weight: 500;
+  grid-column: 1 / -1;
 }
