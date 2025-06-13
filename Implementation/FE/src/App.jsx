@@ -5,6 +5,7 @@ const SIDEBAR_LINKS = [
   { label: 'Home', icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg> },
   { label: 'Expenses', icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg> },
   { label: 'Budgets', icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> },
+  { label: 'Account', icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg> },
 ];
 
 function Sidebar({ current, setCurrent }) {
@@ -242,6 +243,43 @@ function BudgetsSection({ budgets, onAdd, onRefresh, loading }) {
   );
 }
 
+function AccountSection() {
+  const [deleteUserId, setDeleteUserId] = useState('2');
+
+  // Connect delete buttons to backend endpoints
+  const handleDeleteExpenses = async () => {
+    await fetch(`https://app.spendsense.net/expenses/user/${deleteUserId}/hard`, { method: 'DELETE' });
+  };
+  const handleDeleteBudgets = async () => {
+    await fetch(`https://app.spendsense.net/budgets/user/${deleteUserId}/hard`, { method: 'DELETE' });
+  };
+  const handleDeleteAccount = async () => {
+    await fetch(`https://app.spendsense.net/api/message/send?userId=${deleteUserId}`, { method: 'POST' });
+  };
+
+  return (
+    <>
+      <div style={{ position: 'fixed', top: 32, right: 32, zIndex: 1000, borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', opacity: 0.8, background: 'none', boxShadow: 'none' }}>
+        <label style={{ fontWeight: 500, marginRight: 6, fontSize: 13, color: '#666' }}>User ID:</label>
+        <input
+          type="text"
+          value={deleteUserId}
+          onChange={e => setDeleteUserId(e.target.value)}
+          style={{ padding: '3px 6px', borderRadius: 6, border: '1px solid #ccc', width: 38, fontSize: 13, background: 'none', color: '#444' }}
+        />
+      </div>
+      <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <section className="account-section" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(186, 163, 111, 0.06)', padding: 32, maxWidth: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <h2 style={{ marginBottom: 32 }}>Account Management</h2>
+          <button className="account-action-btn" onClick={handleDeleteExpenses} style={{ width: '100%', marginBottom: 18, background: '#18122b', color: '#fff', border: 'none', borderRadius: 8, padding: '14px 0', fontSize: '1.08rem', fontWeight: 600, cursor: 'pointer' }}>Delete All Expenses</button>
+          <button className="account-action-btn" onClick={handleDeleteBudgets} style={{ width: '100%', marginBottom: 18, background: '#bfa76f', color: '#fff', border: 'none', borderRadius: 8, padding: '14px 0', fontSize: '1.08rem', fontWeight: 600, cursor: 'pointer' }}>Delete All Budgets</button>
+          <button className="account-action-btn" onClick={handleDeleteAccount} style={{ width: '100%', background: '#b85c38', color: '#fff', border: 'none', borderRadius: 8, padding: '14px 0', fontSize: '1.08rem', fontWeight: 600, cursor: 'pointer' }}>Delete Account</button>
+        </section>
+      </div>
+    </>
+  );
+}
+
 function App() {
   const [current, setCurrent] = useState('Home');
   const [expenses, setExpenses] = useState([]);
@@ -318,6 +356,7 @@ function App() {
         {current === 'Home' && <HomeSection />}
         {current === 'Expenses' && <ExpensesSection expenses={expenses} onAdd={handleAddExpense} onRefresh={fetchExpenses} loading={loading} />}
         {current === 'Budgets' && <BudgetsSection budgets={budgets} onAdd={handleAddBudget} onRefresh={fetchBudgets} loading={loading} />}
+        {current === 'Account' && <AccountSection />}
       </main>
     </div>
   );
