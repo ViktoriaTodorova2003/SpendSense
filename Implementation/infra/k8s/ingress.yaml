@@ -5,24 +5,30 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /api/budgets/$2
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+    - hosts:
+        - app.spendsense.net
+      secretName: spendsense-tls
   rules:
-  - http:
-      paths:
-      - path: /budgets(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: budget-service
-            port:
-              number: 80
-      - path: /budgets/(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: budget-service
-            port:
-              number: 80
+    - host: app.spendsense.net
+      http:
+        paths:
+          - path: /budgets(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: budget-service
+                port:
+                  number: 80
+          - path: /budgets/(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: budget-service
+                port:
+                  number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -31,17 +37,23 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /api/expenses$1
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+    - hosts:
+        - app.spendsense.net
+      secretName: spendsense-tls
   rules:
-  - http:
-      paths:
-      - path: /expenses(/.*)?
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: expense-service
-            port:
-              number: 80
+    - host: app.spendsense.net
+      http:
+        paths:
+          - path: /expenses(/.*)?
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: expense-service
+                port:
+                  number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -50,14 +62,20 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /api/message/$2
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+    - hosts:
+        - app.spendsense.net
+      secretName: spendsense-tls
   rules:
-  - http:
-      paths:
-      - path: /api/message(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: spendsense-saga-user-delete-service
-            port:
-              number: 80
+    - host: app.spendsense.net
+      http:
+        paths:
+          - path: /api/message(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: spendsense-saga-user-delete-service
+                port:
+                  number: 80
