@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 const SIDEBAR_LINKS = [
@@ -34,13 +34,15 @@ function ExpenseForm({ onAdd }) {
   const [category, setCategory] = useState('General');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
+  const [userId, setUserId] = useState('2');
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!description || !amount) return;
-    onAdd({ category, description, amount: parseFloat(amount) });
+    if (!description || !amount || !userId) return;
+    onAdd({ category, description, amount: parseFloat(amount), userId });
     setDescription('');
     setAmount('');
+    // keep userId and category for convenience
   }
 
   return (
@@ -80,6 +82,16 @@ function ExpenseForm({ onAdd }) {
             required
           />
         </div>
+        <div className="expense-input-group">
+          <label>User ID</label>
+          <input
+            type="text"
+            value={userId}
+            onChange={e => setUserId(e.target.value)}
+            placeholder="Enter user ID"
+            required
+          />
+        </div>
       </div>
       <button className="expense-form-btn" type="submit">Add New Expense</button>
     </form>
@@ -96,7 +108,7 @@ function ExpenseCard({ expense }) {
   );
 }
 
-function ExpensesSection({ expenses, onAdd }) {
+function ExpensesSection({ expenses, onAdd, onRefresh, loading }) {
   return (
     <section className="expenses-section expenses-section-grid">
       <div className="expense-form-wrapper">
@@ -105,19 +117,26 @@ function ExpensesSection({ expenses, onAdd }) {
       <div className="expense-list-wrapper">
         <h3 className="expense-form-title">My Expenses</h3>
         <div className="expense-list-grid">
-          {expenses.length === 0 && [1,2,3].map(i => (
-            <div className="expense-card-grid" key={i}>
-              <div className="expense-card-title">Expense {i}</div>
-              <div className="expense-card-placeholder">...</div>
+          {expenses.length === 0 ? (
+            <div className="expense-list-empty">
+              <p style={{ color: '#888', textAlign: 'center', width: '100%' }}>
+                No expenses found. Start by adding a new expense!
+              </p>
             </div>
-          ))}
-          {expenses.map((e, i) => (
-            <div className="expense-card-grid" key={i}>
-              <div className="expense-card-title">{e.category}</div>
-              <div className="expense-card-desc">{e.description}</div>
-              <div className="expense-card-amount">${e.amount.toFixed(2)}</div>
-            </div>
-          ))}
+          ) : (
+            expenses.map((e, i) => (
+              <div className="expense-card-grid" key={i}>
+                <div className="expense-card-title">{e.category}</div>
+                <div className="expense-card-desc">{e.description}</div>
+                <div className="expense-card-amount">${e.amount.toFixed(2)}</div>
+              </div>
+            ))
+          )}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+          <button onClick={onRefresh} className="expense-form-btn" style={{ minWidth: 180 }} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh Expenses'}
+          </button>
         </div>
       </div>
     </section>
@@ -221,13 +240,46 @@ function App() {
   const [current, setCurrent] = useState('Home');
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch expenses from backend
+  const fetchExpenses = () => {
+    setLoading(true);
+    fetch('https://app.spendsense.net/expenses')
+      .then(res => res.json())
+      .then(data => setExpenses(data))
+      .catch(err => console.error('Failed to fetch expenses:', err))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (current === 'Expenses') {
+      fetchExpenses();
+    }
+  }, [current]);
+
+  // Add expense to backend
+  const handleAddExpense = async (expense) => {
+    try {
+      const res = await fetch('https://app.spendsense.net/expenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(expense)
+      });
+      if (!res.ok) throw new Error('Failed to add expense');
+      // After adding, refresh the list
+      fetchExpenses();
+    } catch (err) {
+      alert('Error adding expense: ' + err.message);
+    }
+  };
 
   return (
     <div className="app-layout">
       <Sidebar current={current} setCurrent={setCurrent} />
       <main className="main-content">
         {current === 'Home' && <HomeSection />}
-        {current === 'Expenses' && <ExpensesSection expenses={expenses} onAdd={e => setExpenses(prev => [...prev, e])} />}
+        {current === 'Expenses' && <ExpensesSection expenses={expenses} onAdd={handleAddExpense} onRefresh={fetchExpenses} loading={loading} />}
         {current === 'Budgets' && <BudgetsSection budgets={budgets} onAdd={b => setBudgets(prev => [...prev, b])} />}
       </main>
     </div>
